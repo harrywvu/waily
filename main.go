@@ -6,12 +6,18 @@ import (
 	"os"
 )
 
-func main() {
+func startMenu() {
+
+	startStatus := "Wail Stream is empty :("
+
 	helpers.ClearTerminal()
 	helpers.PrintShortcuts()
 	helpers.PrintTitle()
+	helpers.PrintStatus(startStatus)
 	helpers.PrintOptions()
 
+	helpers.PrintNewLine()
+	helpers.PrintNewLine()
 	reader := bufio.NewReader(os.Stdin)
 	input, _ := reader.ReadString('\n')
 
@@ -21,5 +27,10 @@ func main() {
 	case 'v', 'V':
 		viewStream()
 	default:
+		startMenu()
 	}
+}
+
+func main() {
+	startMenu()
 }

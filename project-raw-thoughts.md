@@ -34,3 +34,75 @@ Read 18 pages of my novel
     EDIT MODE WAIL
     Edit Wail: *Enter New Wail* // When enter is pressed, it updates the current wail
     // back to main menu // 
+
+
+## **V1 – Daily Wails Prototype (CLI/TUI)**
+
+### **Main Menu**
+
+* [X] Show banner / title
+* [X] Display today’s date
+* [ ] Display Wails added today or message if empty
+* [ ] Show success messages:
+
+  * [ ] “Wail Added!” when a new wail is added
+  * [ ] “Wail Edited!” when a wail is updated
+
+---
+
+### **1. Add Daily Wail**
+
+* [ ] Prompt user: `Daily Wail: *Enter Win*`
+* [ ] Add new Wail to today’s stream on Enter
+* [ ] Return to main menu
+
+---
+
+### **2. View Wail Streams**
+
+* [ ] List all available Wail Streams by date
+
+  * [ ] Format: `Month Day, Year`
+  * [ ] Cursor for user selection
+* [ ] Key actions in stream list:
+
+  * [ ] DEL → Delete entire Wail Stream
+  * [ ] INS → Enter EDIT mode for selected Wail Stream
+
+---
+
+### **3. Wail Stream View**
+
+* [ ] Display all Wails for selected stream
+* [ ] Show date header: `- Month Day, Year -`
+* [ ] List Wails in order added
+
+---
+
+### **4. Wail Stream EDIT MODE**
+
+* [ ] Cursor to select individual Wail
+* [ ] Key actions:
+
+  * [ ] DEL → Delete selected Wail
+  * [ ] INS → Edit selected Wail
+
+---
+
+### **5. EDIT MODE WAIL**
+
+* [ ] Prompt user: `Edit Wail: *Enter New Wail*`
+* [ ] Update selected Wail on Enter
+* [ ] Return to main menu
+
+---
+
+### **General**
+
+* [ ] All streams stored in JSON
+* [ ] Basic CRUD implemented:
+
+  * [ ] Create (Add Wail)
+  * [ ] Read (View Stream)
+  * [ ] Update (Edit Wail)
+  * [ ] Delete (Wail / Stream)

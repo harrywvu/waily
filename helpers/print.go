@@ -13,6 +13,12 @@ func ClearTerminal() {
 	cmd.Run()
 }
 
+func PrintStatus(s string) {
+	if s != "" {
+		fmt.Println(s)
+	}
+}
+
 func PrintTitle() {
 	fmt.Printf(`
         ▗▖ ▗▖ ▗▄▖ ▗▄▄▄▖▗▖ ▗▖  ▗▖
