@@ -43,3 +43,13 @@ func PrintOptions() {
 func PrintShortcuts() {
 	fmt.Println("[Q- Quit]")
 }
+
+func PrintHeader(statusMessage string) {
+		ClearTerminal()
+		PrintShortcuts()
+		PrintTitle()
+		PrintStatus(statusMessage)
+		PrintOptions()
+		PrintNewLine()
+		PrintNewLine()
+}
