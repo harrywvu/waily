@@ -1,7 +1,62 @@
 [
   {
-    "date": "2026-02-23",
-    "timestamp": "22:47:06",
-    "content": "1 Hour+ of coding with Go"
+    "id": "2026-02-28T09:12:15.123456789+08:00",
+    "date": "2026-02-28",
+    "content": "Finished reading 20 pages of my novel",
+    "StreamID": "5"
+  },
+  {
+    "id": "2026-02-28T12:45:02.987654321+08:00",
+    "date": "2026-02-28",
+    "content": "Went for a 30-minute run",
+    "StreamID": "5"
+  },
+  {
+    "id": "2026-02-27T08:30:45.111213141+08:00",
+    "date": "2026-02-27",
+    "content": "Learned a new Go concept: interfaces",
+    "StreamID": "4"
+  },
+  {
+    "id": "2026-02-27T19:50:20.222324252+08:00",
+    "date": "2026-02-27",
+    "content": "Cooked a healthy dinner",
+    "StreamID": "4"
+  },
+  {
+    "id": "2026-02-27T21:05:11.333435363+08:00",
+    "date": "2026-02-27",
+    "content": "Reviewed 15 flashcards for learning",
+    "StreamID": "4"
+  },
+  {
+    "id": "2026-02-26T07:15:00.444546474+08:00",
+    "date": "2026-02-26",
+    "content": "Meditated for 20 minutes",
+    "StreamID": "3"
+  },
+  {
+    "id": "2026-02-26T10:50:33.555657585+08:00",
+    "date": "2026-02-26",
+    "content": "Solved a challenging problem in Go",
+    "StreamID": "3"
+  },
+  {
+    "id": "2026-02-25T13:22:10.666768697+08:00",
+    "date": "2026-02-25",
+    "content": "Did 50 push-ups",
+    "StreamID": "2"
+  },
+  {
+    "id": "2026-02-25T14:35:50.777879808+08:00",
+    "date": "2026-02-25",
+    "content": "Organized workspace",
+    "StreamID": "2"
+  },
+  {
+    "id": "2026-02-24T10:03:35.528389263+08:00",
+    "date": "2026-02-24",
+    "content": "Code for 1 hour+ in Go",
+    "StreamID": "1"
   }
 ]

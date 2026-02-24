@@ -47,7 +47,9 @@ func startMenu(startStatus string, masterStream *[]Wail) {
 		newStatusMessage := addWail(masterStream)
 		startMenu(newStatusMessage, masterStream)
 	case 'v', 'V':
-		viewStream()
+		viewStream(masterStream)
+	case 'q', 'Q':
+		os.Exit(0)
 	default:
 		startMenu(wrongInputStatus, masterStream)
 	}
