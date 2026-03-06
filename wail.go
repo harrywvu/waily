@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"sort"
 	"strings"
 	"text/tabwriter"
 	"time"
@@ -43,8 +44,13 @@ func GetHighestStreamID(masterStream *[]Wail) int {
 type Wail struct {
 	ID       string `json:"id"`      // "2006-01-02T15:04:05.999999999Z07:0 		<- UNIQUE ID
 	Date     string `json:"date"`    // "2026-02-22" 				  			<- For Display
-	Content  string `json:"content"` // "Went to the gym"  				<- For Display
+	Content  string `json:"content"` // "Went to the		 gym"  				<- For Display
 	StreamID string `json:stream_id` // "1"								<- For easy stream selection
+}
+
+type StreamView struct {
+	StreamID string
+	Date     string
 }
 
 // returns the status message
@@ -83,20 +89,30 @@ func addWail(masterStream *[]Wail) string {
 func viewStream(masterStream *[]Wail) {
 	helpers.PrintNewLine()
 
-	w := tabwriter.NewWriter(os.Stdout, 1, 1, 2, ' ', 0)
+	dateMap := make(map[string]string)
 
-	// Iterate and print using tabs (\t) to separate columns
-	for _, stream := range *masterStream {
-		fmt.Fprintf(w, "%d\t%s\n", stream.StreamID, stream.Date)
+	// create a map of the masterStream
+	for _, wail := range *masterStream {
+		if _, exists := dateMap[wail.Date]; 
+		!exists {
+			dateMap[wail.Date] = wail.StreamID
+		}
 	}
 
-	// Flush ensures the buffer is written to the terminal
+	streams := make([]StreamView, 0, len(dateMap))
+	for date, id := range dateMap {
+		streams = append(streams, StreamView{StreamID: id, Date: date})
+	}
+
+	sort.Slice(streams, func(i, j int) bool {
+		return streams[i].Date > streams[j].Date
+	})
+
+	w := tabwriter.NewWriter(os.Stdout, 1, 1, 2, ' ', 0)
+	for _, stream := range streams {
+		fmt.Fprintf(w, "%s\t%s\n", stream.StreamID, stream.Date)
+	}
+
+	// Flush ensures the buffer is written to/ the terminal
 	w.Flush()
-
-	fmt.Print("Select Stream : ")
-
-	// userInput := helpers.getUserInput()
-
-
-
 }
