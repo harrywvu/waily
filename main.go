@@ -48,8 +48,21 @@ func startMenu(startStatus string, masterStream *[]Wail) {
 		startMenu(newStatusMessage, masterStream)
 	case 'v', 'V':
 		viewStream(masterStream)
-		selectOptions()
+		choice := choiceInViewStream()
+		
+		fmt.Print("Enter Stream [ID]")
+		streamID := helpers.GetUserInputInt()
 
+		if choice == 1 {
+			// display all wails with the matching stream ID
+			// give user option to 
+
+		} else if choice == 2 {
+			deleteStream(masterStream, streamID)
+		} else {
+
+		}
+			
 	case 'q', 'Q':
 		os.Exit(0)
 	default:
@@ -58,13 +71,15 @@ func startMenu(startStatus string, masterStream *[]Wail) {
 }
 
 // choose either to edit a wail or delete the stream
-func selectOptions() int {
+func choiceInViewStream() int {
 
-	fmt.Print("[1] Edit a Wail 		[2] Delete Stream")
+	fmt.Print("[1] Select 		[2] Delete Stream\n")
 	var key int = helpers.GetUserInputInt()
 
 	return key
 }
+
+
 
 func main() {
 	// master-stream.json

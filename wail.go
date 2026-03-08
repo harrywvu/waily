@@ -86,6 +86,7 @@ func addWail(masterStream *[]Wail) string {
 	return "Wail added successfully! :D"
 }
 
+// Shows Streams per datez
 func viewStream(masterStream *[]Wail) {
 	helpers.PrintNewLine()
 
@@ -115,4 +116,36 @@ func viewStream(masterStream *[]Wail) {
 
 	// Flush ensures the buffer is written to/ the terminal
 	w.Flush()
+}
+ 
+func deleteStream(masterStream *[]Wail, streamID int) {
+	streamIDtoBeDeleted := fmt.Sprintf("%d", streamID)
+
+	var toBeDeleted []int
+
+	// iterate through the masterStream(dereferenced)
+	for i, stream := range *masterStream{
+		// collect the indices that are to be deleted 
+		if stream.StreamID == streamIDtoBeDeleted {
+			toBeDeleted = append(toBeDeleted, i)
+		}
+	}
+
+	// delete the elements at the indexes collected 
+	// pop and swap technique is used here, so elements will be deleted in reverse
+	// 2. truncate the slice to remove the duplicate
+
+	for j := len(toBeDeleted) - 1; j >= 0; j--{
+			// use the last element in toBeDeleted as the index to delete in the masterStream
+		i := toBeDeleted[j]
+		lastIndexInMasterStream := len(*masterStream) - 1
+
+			// 1. replace element to be deleted with the last element
+		(*masterStream)[i] = (*masterStream)[lastIndexInMasterStream]
+
+			// 2. truncate the slice to remove the duplicate
+		*masterStream = (*masterStream)[:lastIndexInMasterStream]
+	}
+
+	saveWails("master-stream.json", *masterStream)
 }
