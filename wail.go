@@ -3,7 +3,7 @@ package main
 import (
 	"bufio"
 	"daily-wins-cli/helpers"
-	"encoding/json"
+	"database/sql"
 	"fmt"
 	"os"
 	"sort"
@@ -12,49 +12,36 @@ import (
 	"time"
 )
 
-func saveWails(filename string, masterStream []Wail) error {
-	// Convert slice to JSON
-	jsonBytes, err := json.MarshalIndent(masterStream, "", "  ")
-	if err != nil {
-		return err
-	}
-
-	// Write to file
-	err = os.WriteFile(filename, jsonBytes, 0644)
-	return err
-}
-
 // GetHighestStreamID iterates through the slice and returns the maximum StreamID value.
-func GetHighestStreamID(masterStream *[]Wail) int {
+func GetHighestStreamID(masterStream *[]Wail) int {	
 	if len(*masterStream) == 0 {
 		return 0
 	}
 
 	max := 0
 	for _, wail := range *masterStream {
-		var streamID int
-		fmt.Sscanf(wail.StreamID, "%d", &streamID)
-		if streamID > max {
-			max = streamID
+		if wail.StreamID > max {
+			max = wail.StreamID
 		}
 	}
 	return max
 }
 
 type Wail struct {
-	ID       string `json:"id"`      // "2006-01-02T15:04:05.999999999Z07:0 		<- UNIQUE ID
-	Date     string `json:"date"`    // "2026-02-22" 				  			<- For Display
-	Content  string `json:"content"` // "Went to the		 gym"  				<- For Display
-	StreamID string `json:stream_id` // "1"								<- For easy stream selection
+	ID        int    `json:"id"`        // Auto-incremented ID
+	Timestamp string `json:"timestamp"` // Full timestamp
+	Date      string `json:"date"`      // "2026-02-22" <- For Display
+	Content   string `json:"content"`   // "Went to the gym" <- For Display
+	StreamID  int    `json:"stream_id"` // Stream ID as int
 }
 
 type StreamView struct {
-	StreamID string
+	StreamID int
 	Date     string
 }
 
 // returns the status message
-func addWail(masterStream *[]Wail) string {
+func addWail(masterStream *[]Wail, db *sql.DB) string {
 
 	maxExistingID := GetHighestStreamID(masterStream)
 	newStreamID := maxExistingID + 1
@@ -68,34 +55,36 @@ func addWail(masterStream *[]Wail) string {
 
 	now := time.Now()
 	newWail := Wail{
-		ID:       now.Format(time.RFC3339Nano),
-		Date:     time.Now().Format("2006-01-02"),
-		Content:  userInput,
-		StreamID: fmt.Sprintf("%d", newStreamID),
+		Timestamp: now.Format(time.RFC3339Nano),
+		Date:      now.Format("2006-01-02"),
+		Content:   userInput,
+		StreamID:  newStreamID,
 	}
 
-	// Add the wail
-	*masterStream = append(*masterStream, newWail)
-
-	// Save back to JSON file
-	err := saveWails("master-stream.json", *masterStream)
+	// Insert into DB
+	err := saveWailToDB(db, newWail)
 	if err != nil {
 		return "Error saving wail :("
+	}
+
+	// Reload from DB
+	*masterStream, err = loadWailsFromDB(db)
+	if err != nil {
+		return "Error reloading wails :("
 	}
 
 	return "Wail added successfully! :D"
 }
 
-// Shows Streams per datez
+// Shows Streams per dates
 func viewStream(masterStream *[]Wail) {
 	helpers.PrintNewLine()
 
-	dateMap := make(map[string]string)
+	dateMap := make(map[string]int)
 
 	// create a map of the masterStream
 	for _, wail := range *masterStream {
-		if _, exists := dateMap[wail.Date]; 
-		!exists {
+		if _, exists := dateMap[wail.Date]; !exists {
 			dateMap[wail.Date] = wail.StreamID
 		}
 	}
@@ -111,41 +100,46 @@ func viewStream(masterStream *[]Wail) {
 
 	w := tabwriter.NewWriter(os.Stdout, 1, 1, 2, ' ', 0)
 	for _, stream := range streams {
-		fmt.Fprintf(w, "%s\t%s\n", stream.StreamID, stream.Date)
+		fmt.Fprintf(w, "%d\t%s\n", stream.StreamID, stream.Date)
 	}
 
 	// Flush ensures the buffer is written to/ the terminal
 	w.Flush()
 }
- 
-func deleteStream(masterStream *[]Wail, streamID int) {
-	streamIDtoBeDeleted := fmt.Sprintf("%d", streamID)
 
-	var toBeDeleted []int
+func deleteStream(masterStream *[]Wail, streamID int, db *sql.DB) string {
+	err := deleteStreamFromDB(db, streamID)
+	if err != nil {
+		return "Error deleting stream :("
+	}
 
-	// iterate through the masterStream(dereferenced)
-	for i, stream := range *masterStream{
-		// collect the indices that are to be deleted 
-		if stream.StreamID == streamIDtoBeDeleted {
-			toBeDeleted = append(toBeDeleted, i)
+	// Reload from DB
+	*masterStream, err = loadWailsFromDB(db)
+	if err != nil {
+		return "Error reloading wails :("
+	}
+
+	return "Successfully deleted a stream :("
+}
+
+func viewWails(masterStream *[]Wail, streamID int) {
+	helpers.PrintNewLine()
+
+	var matchingWails []Wail
+	for _, wail := range *masterStream {
+		if wail.StreamID == streamID {
+			matchingWails = append(matchingWails, wail)
 		}
 	}
 
-	// delete the elements at the indexes collected 
-	// pop and swap technique is used here, so elements will be deleted in reverse
-	// 2. truncate the slice to remove the duplicate
+	sort.Slice(matchingWails, func(i, j int) bool {
+		return matchingWails[i].Date > matchingWails[j].Date
+	})
 
-	for j := len(toBeDeleted) - 1; j >= 0; j--{
-			// use the last element in toBeDeleted as the index to delete in the masterStream
-		i := toBeDeleted[j]
-		lastIndexInMasterStream := len(*masterStream) - 1
-
-			// 1. replace element to be deleted with the last element
-		(*masterStream)[i] = (*masterStream)[lastIndexInMasterStream]
-
-			// 2. truncate the slice to remove the duplicate
-		*masterStream = (*masterStream)[:lastIndexInMasterStream]
+	w := tabwriter.NewWriter(os.Stdout, 1, 1, 2, ' ', 0)
+	fmt.Fprintln(w, "Date\tContent\tID")
+	for _, wail := range matchingWails {
+		fmt.Fprintf(w, "%s\t%s\t%d\n", wail.Date, wail.Content, wail.ID)
 	}
-
-	saveWails("master-stream.json", *masterStream)
+	w.Flush()
 }

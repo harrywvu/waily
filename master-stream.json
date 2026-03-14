@@ -42,27 +42,21 @@
     "StreamID": "3"
   },
   {
-    "id": "2026-02-25T13:22:10.666768697+08:00",
-    "date": "2026-02-25",
-    "content": "Did 50 push-ups",
-    "StreamID": "2"
-  },
-  {
-    "id": "2026-02-25T14:35:50.777879808+08:00",
-    "date": "2026-02-25",
-    "content": "Organized workspace",
-    "StreamID": "2"
-  },
-  {
-    "id": "2026-02-24T10:03:35.528389263+08:00",
-    "date": "2026-02-24",
-    "content": "Code for 1 hour+ in Go",
-    "StreamID": "1"
-  },
-  {
     "id": "2026-03-03T23:50:54.324496177+08:00",
     "date": "2026-03-03",
     "content": "Got back to coding!",
     "StreamID": "6"
+  },
+  {
+    "id": "2026-03-14T22:04:15.69151425+08:00",
+    "date": "2026-03-14",
+    "content": "Webinar second session completed!",
+    "StreamID": "7"
+  },
+  {
+    "id": "2026-03-14T22:04:24.613783507+08:00",
+    "date": "2026-03-14",
+    "content": "Stayed under calorie deficit!",
+    "StreamID": "8"
   }
 ]
