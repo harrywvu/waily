@@ -28,25 +28,6 @@ func initDB() (*sql.DB, error) {
 	return db, err
 }
 
-func loadWailsFromDB(db *sql.DB) ([]Wail, error) {
-	rows, err := db.Query("SELECT id, timestamp, date, content, stream_id FROM wails ORDER BY id")
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-
-	var wails []Wail
-	for rows.Next() {
-		var w Wail
-		err := rows.Scan(&w.ID, &w.Timestamp, &w.Date, &w.Content, &w.StreamID)
-		if err != nil {
-			return nil, err
-		}
-		wails = append(wails, w)
-	}
-	return wails, rows.Err()
-}
-
 func saveWailToDB(db *sql.DB, wail Wail) error {
 	_, err := db.Exec("INSERT INTO wails (timestamp, date, content, stream_id) VALUES (?, ?, ?, ?)",
 		wail.Timestamp, wail.Date, wail.Content, wail.StreamID)
@@ -58,7 +39,7 @@ func deleteStreamFromDB(db *sql.DB, streamID int) error {
 	return err
 }
 
-func startMenu(startStatus string, masterStream *[]Wail, db *sql.DB) {
+func startMenu(startStatus string, db *sql.DB) {
 	var wrongInputStatus string = "You pressed a wrong key :("
 
 	helpers.PrintHeader(startStatus)
@@ -68,10 +49,10 @@ func startMenu(startStatus string, masterStream *[]Wail, db *sql.DB) {
 
 	switch input[0] {
 	case 'a', 'A':
-		newStatusMessage := addWail(masterStream, db)
-		startMenu(newStatusMessage, masterStream, db)
+		newStatusMessage := addWail(db)
+		startMenu(newStatusMessage, db)
 	case 'v', 'V':
-		viewStream(masterStream)
+		viewStream(db)
 		choice := choiceInViewStream()
 
 		fmt.Print("Enter Stream [ID]")
@@ -80,19 +61,33 @@ func startMenu(startStatus string, masterStream *[]Wail, db *sql.DB) {
 		if choice == 1 {
 
 			// display all wails by date
-			viewWails(masterStream, streamID)
+			viewWails(db, streamID)
+
+			// give them the option to either edit or delete a wail
+			fmt.Print("EDIT [1]		DELETE [2]")
+			var key int = helpers.GetUserInputInt()
+
+			if key == 1 {
+				fmt.Print("Enter Wail to Edit [ID]: ")
+				// var editKey string = helpers.GetUserInputString()
+
+			} else if key == 2 {
+
+			} else {
+				startMenu(wrongInputStatus, db)
+			}
 
 		} else if choice == 2 {
-			newStatusMessage := deleteStream(masterStream, streamID, db)
-			startMenu(newStatusMessage, masterStream, db)
+			newStatusMessage := deleteStream(db, streamID)
+			startMenu(newStatusMessage, db)
 		} else {
-			startMenu(wrongInputStatus, masterStream, db)
+			startMenu(wrongInputStatus, db)
 		}
 
 	case 'q', 'Q':
 		os.Exit(0)
 	default:
-		startMenu(wrongInputStatus, masterStream, db)
+		startMenu(wrongInputStatus, db)
 	}
 }
 
@@ -112,11 +107,5 @@ func main() {
 	}
 	defer db.Close()
 
-	// Load wails from DB into slice
-	masterStream, err := loadWailsFromDB(db)
-	if err != nil {
-		panic(err)
-	}
-
-	startMenu(baseStatusMessage, &masterStream, db)
+	startMenu(baseStatusMessage, db)
 }
