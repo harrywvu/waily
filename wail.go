@@ -75,7 +75,8 @@ func addWail(db *sql.DB) string {
 func viewStream(db *sql.DB) {
 	helpers.PrintNewLine()
 
-	rows, err := db.Query("SELECT DISTINCT date, stream_id FROM wails ORDER BY date DESC")
+	// Group by date to avoid duplicate stream entries when multiple stream_ids exist for a single date
+	rows, err := db.Query("SELECT date, MIN(stream_id) FROM wails GROUP BY date ORDER BY date DESC")
 	if err != nil {
 		fmt.Println("Error querying streams:", err)
 		return
@@ -130,5 +131,33 @@ func viewWails(db *sql.DB, streamID int) {
 }
 
 func deleteWail(db *sql.DB, wailID int) {
-	
+
+}
+
+func editWail(db *sql.DB, wailID int) string {
+
+	var oldWailContent string 
+
+	err := db.QueryRow("SELECT content FROM wails WHERE id = ?", wailID).Scan(&oldWailContent)
+	if err != nil {
+		if err == sql.ErrNoRows{
+			return "Wail does not exist."
+		}
+		return "Error retrieving wail: " + err.Error()
+	}
+
+	fmt.Printf("Old Wail Content for Wail with ID [%v]: %v\n", wailID, oldWailContent)
+
+	fmt.Print("Type new Wail Content: ")
+	newWailContent := helpers.GetUserInputString()
+	if newWailContent == ""{
+		return "Error updating wail: " + err.Error()
+	}
+
+	_, err = db.Exec("UPDATE wails SET content = ? WHERE id = ?", newWailContent, wailID)
+	if err != nil {
+		return "Error updating wail: " + err.Error()
+	}
+
+	return "Wail successfully edited"
 }

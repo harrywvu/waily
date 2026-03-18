@@ -69,7 +69,9 @@ func startMenu(startStatus string, db *sql.DB) {
 
 			if key == 1 {
 				fmt.Print("Enter Wail to Edit [ID]: ")
-				// var editKey string = helpers.GetUserInputString()
+				var editKey int = helpers.GetUserInputInt()
+				var newStatusMessage string = editWail(db, editKey)
+				startMenu(newStatusMessage, db)
 
 			} else if key == 2 {
 
