@@ -130,17 +130,12 @@ func viewWails(db *sql.DB, streamID int) {
 	w.Flush()
 }
 
-func deleteWail(db *sql.DB, wailID int) {
-
-}
-
 func editWail(db *sql.DB, wailID int) string {
-
 	var oldWailContent string 
 
 	err := db.QueryRow("SELECT content FROM wails WHERE id = ?", wailID).Scan(&oldWailContent)
 	if err != nil {
-		if err == sql.ErrNoRows{
+		if err == sql.ErrNoRows {
 			return "Wail does not exist."
 		}
 		return "Error retrieving wail: " + err.Error()
@@ -150,14 +145,43 @@ func editWail(db *sql.DB, wailID int) string {
 
 	fmt.Print("Type new Wail Content: ")
 	newWailContent := helpers.GetUserInputString()
-	if newWailContent == ""{
-		return "Error updating wail: " + err.Error()
+
+	if newWailContent == "" {
+		return "Wail content cannot be empty."
 	}
 
-	_, err = db.Exec("UPDATE wails SET content = ? WHERE id = ?", newWailContent, wailID)
+	result, err := db.Exec("UPDATE wails SET content = ? WHERE id = ?", newWailContent, wailID)
 	if err != nil {
 		return "Error updating wail: " + err.Error()
 	}
 
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return "Error checking update result: " + err.Error()
+	}
+
+	if rowsAffected == 0 {
+		return "Wail does not exist (update failed)."
+	}
+
 	return "Wail successfully edited"
+}
+
+
+func deleteWail(db *sql.DB, wailID int) string {
+	result ,err := db.Exec("DELETE FROM wails WHERE id = ?", wailID)
+	if err != nil {
+		return "Error deleting wail: " + err.Error()
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return "Error checking result: " + err.Error()
+	}
+
+	if rowsAffected == 0 {
+		return "Wail does not exist."
+	}
+
+	return "Wail successfully deleted:("
 }

@@ -1,11 +1,11 @@
 package main
 
 import (
-	"bufio"
 	"daily-wins-cli/helpers"
 	"database/sql"
 	"fmt"
 	"os"
+	"strings"
 
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -44,14 +44,13 @@ func startMenu(startStatus string, db *sql.DB) {
 
 	helpers.PrintHeader(startStatus)
 
-	reader := bufio.NewReader(os.Stdin)
-	input, _ := reader.ReadString('\n')
+	input := strings.ToLower(helpers.GetUserInputString())
 
-	switch input[0] {
-	case 'a', 'A':
+	switch input {
+	case "a":
 		newStatusMessage := addWail(db)
 		startMenu(newStatusMessage, db)
-	case 'v', 'V':
+	case "v":
 		viewStream(db)
 		choice := choiceInViewStream()
 
@@ -74,6 +73,13 @@ func startMenu(startStatus string, db *sql.DB) {
 				startMenu(newStatusMessage, db)
 
 			} else if key == 2 {
+				
+				viewWails(db, streamID)
+				// get wailID to be deleted
+				fmt.Print("Enter Wail to Delete [ID]: ")
+				var deleteKey int = helpers.GetUserInputInt()
+				var newStatusMessage string = deleteWail(db, deleteKey)
+				startMenu(newStatusMessage, db)
 
 			} else {
 				startMenu(wrongInputStatus, db)
@@ -86,7 +92,7 @@ func startMenu(startStatus string, db *sql.DB) {
 			startMenu(wrongInputStatus, db)
 		}
 
-	case 'q', 'Q':
+	case "q":
 		os.Exit(0)
 	default:
 		startMenu(wrongInputStatus, db)
